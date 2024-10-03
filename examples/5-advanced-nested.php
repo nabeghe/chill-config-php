@@ -1,8 +1,14 @@
-<?php namespace Nabeghe\Examples\ChillConfig\SimpleUsage;
+<?php namespace Nabeghe\Examples\ChillConfig\NormalUsage;
+
+/*
+ * In advanced mode, whenever a property related to the nested config is called, it will be initialized.
+ * In fact, this is a lazy loading approach.
+ */
 
 require '../vendor/autoload.php';
 
 use Nabeghe\ChillConfig\ChillConfig;
+
 
 /**
  * Custom config class with defaults.
@@ -14,7 +20,7 @@ use Nabeghe\ChillConfig\ChillConfig;
  * @property ?string $license
  * @property ?string $version
  * @property ?string $autoload
- * @property ?\Nabeghe\Examples\ChillConfig\NormalUsage\DbConfig $db
+ * @property ?DbConfig $db
  *
  * Get/Set:
  * @method void|string|null name(?string $value = 0)
@@ -24,12 +30,16 @@ use Nabeghe\ChillConfig\ChillConfig;
  * @method void|array|null autoload(?array $value = 0)
  * @method void|DbConfig|null db(?DbConfig $value = 0)
  */
-class BaseConfig extends ChillConfig
+class Config extends ChillConfig
 {
     public const DEFAULTS = [
         'type' => 'library',
         'license' => 'MIT',
-        'version' => '1.0.0',
+        'version' => '1.1.0',
+    ];
+
+    public const NESTS = [
+        'db' => DbConfig::class,
     ];
 }
 
@@ -58,34 +68,24 @@ class DbConfig extends ChillConfig
     ];
 }
 
-$config = new BaseConfig([
+$config = new Config([
     'name' => 'nabeghe/chill-config',
-    'type' => 'library',
-    'license' => 'MIT',
-    'version' => '1.0.0',
-    'db' => new DbConfig([
+    'db' => [ // True turns into an empty array, false becomes null, and everything else (except null) gets converted into an array, whether it’s an object, JSON string, serialized data, etc.
         'name' => 'database',
         'user' => 'root',
         'password' => '0123456789',
-    ]),
+    ],
 ]);
 
 echo '>> Name: '.$config->name.PHP_EOL; // nabeghe/chill-config
-echo '>> Type: '.$config->type().PHP_EOL; // library
-echo '>> Version: '.$config['version'].PHP_EOL; // 1.0.0
+echo '>> Type: '.$config->type.PHP_EOL; // library
+echo '>> Version: '.$config->version.PHP_EOL; // 1.0.0
 echo '>> Autoload: '.gettype($config->autoload).PHP_EOL; // NULL
-$config->version = '2.0.0'; // Edit the version
-echo '>> Edited Version: '.$config->version.PHP_EOL; // 2.0.0
 
 echo "----------------------------------------------------------------------------------------------------\n";
 
-echo '>> Database:'.PHP_EOL;
-print_r($config->db->_options); /*
-                                    [driver] => mysql
-                                    [host] => localhost
-                                    [name] => database
-                                    [user] => test
-                                    [password] => test
-                                */
-$config->db['driver'] = 'mongodb'; // Edit the driver of db
-echo '>> Edited Database Driver: '.$config->db['driver'].PHP_EOL; // mongodb
+echo '>> Database Driver: '.$config->db?->driver.PHP_EOL; // NULL
+echo '>> Database Host: '.$config->db?->host.PHP_EOL; // NULL
+echo '>> Database Name: '.$config->db?->name.PHP_EOL; // NULL
+echo '>> Database User: '.$config->db?->user.PHP_EOL; // NULL
+echo '>> Database Password: '.$config->db?->password.PHP_EOL; // NULL

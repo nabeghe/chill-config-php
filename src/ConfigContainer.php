@@ -11,20 +11,18 @@ abstract class ConfigContainer
 
     public static array $_inits = [];
 
-    protected static ChillConfig $_config;
-
     private function __construct()
     {
     }
 
-    protected static abstract function _chillConfig(): ChillConfig;
+    protected static function _chillConfig(): ?ChillConfig
+    {
+        return $GLOBALS['config'] ?? null;
+    }
 
     public static function _inited(): bool
     {
-        $name = static::NAME;
-        if ($name === null) {
-            $name = static::class;
-        }
+        $name = static::NAME ?? static::class;
         return isset(static::$_inits[$name]) && static::$_inits[$name];
     }
 
@@ -34,30 +32,33 @@ abstract class ConfigContainer
             return;
         }
 
+        /**
+         * @var ChillConfig $config
+         */
         $method = '_chillConfig'; // to prevent ide error: Cannot call abstract method 'StaticReader::_chillConfig'
-        static::$_config = static::$method();
+        $config = static::$method();
 
         if (static::NAME === null) {
             if (static::DEFAULTS) {
-                if (static::$_config->_behaviors->defaultDeepMerge) {
-                    static::$_config->_options = Utils::merge(static::$_config->_options, static::DEFAULTS);
+                if ($config->_behaviors->defaultDeepMerge) {
+                    $config->_options = Utils::merge($config->_options, static::DEFAULTS);
                 } else {
                     foreach (static::DEFAULTS as $key => $value) {
-                        if (!array_key_exists($key, static::$_config->_options)) {
-                            static::$_config->$key = $value;
+                        if (!array_key_exists($key, $config->_options)) {
+                            $config->$key = $value;
                         }
                     }
                 }
             }
         } else {
-            $array = static::$_config[static::NAME];
+            $array = $config[static::NAME];
             $edited = false;
             if (!is_array($array)) {
                 $array = [];
                 $edited = true;
             }
             if (static::DEFAULTS) {
-                if (static::$_config->_behaviors->defaultDeepMerge) {
+                if ($config->_behaviors->defaultDeepMerge) {
                     $array = Utils::merge($array, static::DEFAULTS);
                     $edited = true;
                 } else {
@@ -70,27 +71,27 @@ abstract class ConfigContainer
                 }
             }
             if ($edited) {
-                static::$_config[static::NAME] = $array;
+                $config[static::NAME] = $array;
             }
         }
 
-        $name = static::NAME;
-        if ($name === null) {
-            $name = static::class;
-        }
-        static::$_inits[$name] = true;
+        $name = static::NAME ?? static::class;
+        static::$_inits[$name] = $config;
     }
 
     public static function &__callStatic(string $name, array $arguments)
     {
         static::_init();
 
+        $config_name = static::NAME ?? static::class;
+        $config = static::$_inits[$config_name];
+
         // get
         if (!array_key_exists(0, $arguments)) {
             if (static::NAME === null) {
-                return static::$_config->$name;
+                return $config->$name;
             }
-            $array = static::$_config[static::NAME];
+            $array = $config[static::NAME];
             if (is_array($array) && isset($array[$name])) {
                 return $array[$name];
             }
@@ -100,9 +101,9 @@ abstract class ConfigContainer
 
         // set
         if (static::NAME === null) {
-            static::$_config->$name = $arguments[0];
+            $config->$name = $arguments[0];
         } else {
-            static::$_config[static::NAME][$name] = $arguments[0];
+            $config[static::NAME][$name] = $arguments[0];
         }
 
         $null = null;

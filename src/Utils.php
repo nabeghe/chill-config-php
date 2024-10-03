@@ -56,4 +56,34 @@ class Utils
         }
         return $arr1;
     }
+
+    /**
+     * Converts something into an array.
+     * @param  mixed  $value  an array, json, serialized string, ...
+     * @return array
+     */
+    public static function toArray($value): array
+    {
+        if ($value === null) {
+            return [];
+        }
+        if (!is_array($value)) {
+            if (is_string($value)) {
+                if (str_starts_with($value, '{')) {
+                    $value = @json_decode($value);
+                } else {
+                    $value = @unserialize($value);
+                }
+            } else {
+                try {
+                    $value = (array) $value;
+                } catch (\Throwable $throwable) {
+                }
+            }
+            if (!is_array($value)) {
+                $value = [];
+            }
+        }
+        return $value;
+    }
 }

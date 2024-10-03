@@ -22,11 +22,6 @@ class BaseConfig extends ConfigContainer
         'license' => 'MIT',
         'version' => '1.0.0',
     ];
-
-    protected static function _chillConfig(): ChillConfig
-    {
-        return $GLOBALS['config'];
-    }
 }
 
 /**
@@ -48,11 +43,6 @@ class DbConfig extends ConfigContainer
         'driver' => 'mysql',
         'host' => 'localhost',
     ];
-
-    protected static function _chillConfig(): ChillConfig
-    {
-        return $GLOBALS['config'];
-    }
 }
 
 global $config;

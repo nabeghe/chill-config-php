@@ -9,6 +9,11 @@ class ChillConfig extends \stdClass implements \ArrayAccess, \JsonSerializable
     public const DEFAULTS = [];
 
     /**
+     * Nested configs: keys are config names, and values are the config class.
+     */
+    public const NESTS = [];
+
+    /**
      * @param  array  $_options  Optional. All desired keys & values.
      * @param  ConfigBehaviors|null  $_behaviors  Optional. Config behavior.
      */
@@ -40,7 +45,20 @@ class ChillConfig extends \stdClass implements \ArrayAccess, \JsonSerializable
     public function &__get($name)
     {
         if (!isset($this->_options[$name])) {
-            $this->_options[$name] = null;
+            if (isset(static::NESTS[$name])) {
+                $nested_config_class = static::NESTS[$name];
+                $this->_options[$name] = new $nested_config_class();
+            } else {
+                $this->_options[$name] = null;
+            }
+        } elseif (isset(static::NESTS[$name])) {
+            $nested_config_class = static::NESTS[$name];
+            if (!($this->_options[$name] instanceof $nested_config_class)) {
+                if (!is_array($this->_options[$name])) {
+                    $this->_options[$name] = [];
+                }
+                $this->_options[$name] = new $nested_config_class($this->_options[$name]);
+            }
         }
         return $this->_options[$name];
     }

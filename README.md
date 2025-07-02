@@ -119,6 +119,4 @@ echo '>> Database Password: '.$config->db->password.PHP_EOL; // NULL
 
 ## 📖 License
 
-Copyright (c) 2024 Hadi Akbarzadeh
-
 Licensed under the MIT license, see [LICENSE.md](LICENSE.md) for details.

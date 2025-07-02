@@ -1,21 +1,14 @@
 {
   "name": "nabeghe/chill-config",
   "description": "Where carefree meets calm, and chill thrives in your PHP configuration.",
-  "keywords": [
-    "config",
-    "configuration",
-    "settings",
-    "options",
-    "library"
-  ],
+  "keywords": ["config", "configuration", "library", "options", "settings"],
   "type": "library",
-  "version": "1.1.1",
   "homepage": "https://github.com/nabeghe/chill-config",
   "license": "MIT",
   "authors": [
     {
       "name": "Hadi Akbarzadeh",
-      "email": "hadicoder@gmail.com",
+      "email": "elsiomcoder@gmail.com",
       "homepage": "https://elatel.ir",
       "role": "Developer"
     }
